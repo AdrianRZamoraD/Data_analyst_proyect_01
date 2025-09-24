@@ -1,0 +1,7 @@
+Nombre de la instancia - SQLEXPRESS = Server=localhost\SQLEXPRESS;Database=master;Trusted_Connection=True;
+
+
+Cuando se realiza una búsqueda en un campo de texto:
+Case-insensitive ( no distingue entre mayúsculas y minúsculas)
+accent-sensitive ( una palabra con tildes te va a distinguir de mayúsculas y minúsculas )
+sa - system administrator - cuenta de administrador

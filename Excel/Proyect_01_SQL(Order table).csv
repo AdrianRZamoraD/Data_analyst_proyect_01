@@ -1,0 +1,6 @@
+row_id,order_id,created_at,item_name,item_id,item_size,quanty,cust_id,delivery,add_id,,,,,
+1,ORD_001,16/02/2022 13:30,Pepperoni,it012,Large,1,1,1,1,,,,,
+2,ORD_001,16/02/2022 13:30,Garlic Bread,it017,Regular,2,1,1,1,,,,,
+3,ORD_001,16/02/2022 13:30,Caesar Salad,it020,Regular,1,1,1,1,,,,,
+4,ORD_001,16/02/2022 13:30,Chocolate Ice Cream,it021,Regular,2,1,1,1,,,,,
+5,ORD_001,16/02/2022 13:30,Coca Cola,it029,1.5l,1,1,1,1,,,,,

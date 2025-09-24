@@ -1,0 +1,295 @@
+Client Brief - Ben's Pizzeria
+
+Main areas of focus
+- Orders
+- Stocks
+- Staff
+
+Orders Data Requiered
+
+Bens's
+- Item name
+- Item price
+- Quanty
+- Customer name
+- Delivery address
+
+Ours
+- Row ID
+- Order ID
+- Item name
+- Item category
+- Item size
+- Item price
+- Quanty
+- Customer first name
+- Customer last name
+- Delivery address 1
+- Delivery address 2
+- Delivery city
+- Delivery zip code
+
+Stock control requierements
+- Wants to be able to know when it's time to order new stock
+- To do this we're going to need more information about:
+	- what ingredients go into each pizza
+	- their quanty based on the sixe of the pizza
+	- the existing stock level
+- We'll assume the lead time for delivery by suppliers is the same for all ingredients
+
+
+
+Tables
+
+orders
+-
+row_id int pk
+order_id varchar(10)
+created_at datetime
+item_name varchar(50)
+item_id varchar(10)
+item_size varchar(20)
+quanty int
+cust_id int
+delivery BIT
+add_id int
+
+
+customers 
+-
+cust_id int pk FK >- orders.cust_id
+cust_firstname varchar(50)
+cust_lastname varchar(50)
+
+address
+-
+add_id int pk FK >- orders.add_id
+delivery_address1 varchar(50)
+delivery_address2 varchar(50)
+delivery_city varchar(50)
+delivery_zipcode varchar(20)
+
+item
+-
+item_id varchar(10) pk FK >- orders.item_id
+sku varchar(20)
+item_name varchar(100)
+item_cat varchar(100)
+item_size varchar(100)
+item_price decimal(10,2)
+
+ingredient
+-
+ing_id varchar(10) pk FK >- recipe.ing_id
+ing_name varchar(200)
+ing_weight int
+ing_means varchar(20)
+ing_price decimal(5,2)
+
+recipe
+-
+row_id int pk
+recipe_id varchar(20) FK >- item.sku
+ing_id varchar(10)
+quanty int
+
+inventory
+-
+inv_id int pk
+item_id varchar(10) FK >- recipe.ing_id
+quanty int
+
+staff
+-
+shift_id varchar(20) pk
+first_name varchar(50)
+last_name varchar(50)
+position (100)
+hourly_rate decimal(5,2)
+
+shift
+-
+shift_id varchar(20) pk FK >- rota.shift_id
+day_of_week varchar(10)
+start_time time
+end_time time
+
+rota
+-
+row_id int pk
+rota_id varchar(20)
+date datetime FK >- orders.created_at
+shift_id varchar(20)
+staff_id varchar(20) FK >- staff.staff_id
+
+Staff data requierements
+
+-Wants to know wich staff members are working when
+-Based on the staff salary information, how much each pizza costs (ingredients+chefs+delivery)
+
+TO CREATE TABLES ON SQL SERVER
+
+CREATE TABLE orders (
+	row_id int PRIMARY KEY,
+	order_id varchar(10),
+	created_at datetime,
+	item_name varchar(50),
+	item_id varchar(50),
+	item_size varchar(20),
+	quanty int,
+	cust_id int,
+	delivery BIT,
+	add_id int
+);
+
+use Proyecto_01
+go
+
+ALTER TABLE orders
+ADD CONSTRAINT FK_orderscustomers
+FOREIGN KEY(cust_id) REFERENCES customers(cust_id);
+
+ALTER TABLE orders
+ADD CONSTRAINT FK_ordersitem
+FOREIGN KEY(item_id) REFERENCES item(item_id);
+
+ALTER TABLE orders
+ADD CONSTRAINT FK_ordersaddress
+FOREIGN KEY(add_id) REFERENCES address(add_id);
+
+ALTER TABLE orders
+ADD CONSTRAINT FK_ordersrota
+FOREIGN KEY(created_at) REFERENCES rota(date);
+
+CREATE TABLE customers (
+	cust_id int PRIMARY KEY,
+	cust_firstname varchar(50),
+	cust_lastname varchar(50),
+);
+
+ALTER TABLE customers
+ADD CONSTRAINT FK_customersorders
+FOREIGN KEY(cust_id) REFERENCES orders(cust_id);
+
+CREATE TABLE address (
+	add_id int PRIMARY KEY,
+	delivery_address1 varchar(50),
+	delivery_address2 varchar(50),
+	delivery_city varchar(50),
+	delivery_zipcode varchar(20)
+);
+
+ALTER TABLE address
+ADD CONSTRAINT FK_addressorders
+FOREIGN KEY(add_id) REFERENCES orders(add_id);
+
+CREATE TABLE item (
+	item_id varchar(10) PRIMARY KEY,
+	sku varchar(20),
+	item_name varchar(100),
+	item_cat varchar(100),
+	item_size varchar(100),
+	item_price decimal(10,2)
+);
+
+ALTER TABLE item
+ADD CONSTRAINT UC_item_sku
+UNIQUE (sku);
+
+CREATE TABLE ingredient (
+	ing_id varchar(10) PRIMARY KEY,
+	ing_name varchar(200),
+	ing_weight int,
+	ing_means varchar(20),
+	ing_price decimal(5,2)
+);
+
+ALTER TABLE ingredient
+ADD CONSTRAINT FK_ingredientrecipe
+FOREIGN KEY(ing_id) REFERENCES recipe(ing_id);
+
+CREATE TABLE recipe (
+	row_id int PRIMARY KEY,
+	recipe_id varchar(20),
+	ing_id varchar(10),
+	quanty int
+);
+
+ALTER TABLE recipe	
+ADD CONSTRAINT FK_recipeitem
+FOREIGN KEY(recipe_id) REFERENCES item(sku);
+
+use Proyect_01
+go
+
+ALTER TABLE recipe
+ADD CONSTRAINT FK_recipeingredient
+FOREIGN KEY(ing_id) REFERENCES ingredient(ing_id);
+
+use Proyect_01
+go
+
+ALTER TABLE recipe
+ADD CONSTRAINT FK_recipeinventory
+FOREIGN KEY(ing_id) REFERENCES inventory(item_id);
+
+CREATE TABLE inventory (
+	inv_id int PRIMARY KEY,
+	item_id varchar(10),
+	quanty int
+);
+
+
+ALTER TABLE inventory
+ADD CONSTRAINT FK_inventory_item_id
+UNIQUE (item_id);
+
+CREATE TABLE staff (
+	shift_id varchar(20) PRIMARY KEY,
+	first_name varchar(50),
+	last_name varchar(50),
+	position varchar(100),
+	hourly_rate decimal(5,2)
+);
+
+CREATE TABLE shift (
+	shift_id varchar(20) PRIMARY KEY,
+	day_of_week varchar(10),
+	start_time time,
+	end_time time
+);
+
+ALTER TABLE shift
+ADD CONSTRAINT FK_shiftrota
+FOREIGN KEY(shift_id) REFERENCES rota(shift_id);
+
+CREATE TABLE rota (
+	row_id int PRIMARY KEY,
+	rota_id varchar(20),
+	date datetime,
+	shift_id varchar(20),
+	staff_id varchar(20),
+);
+
+
+ALTER TABLE rota
+ADD CONSTRAINT FK_rotaorders
+FOREIGN KEY(date) REFERENCES orders(created_at);
+
+ALTER TABLE rota
+ADD CONSTRAINT FK_rotastaff
+FOREIGN KEY(staff_id) REFERENCES staff(staff_id);
+
+For create a Boolean in T-SQL expresión (In bit tables)
+
+SELECT * FROM MyTable WHERE IsActive = 1; -- Selects rows where IsActive is TRUE
+SELECT * FROM MyTable WHERE IsActive = 0; -- Selects rows where IsActive is FALSE
+
+IF (1 > 0)
+BEGIN
+    PRINT 'True condition';
+END
+
+CASE WHEN (SomeColumn IS NOT NULL) THEN 1 ELSE 0 END AS IsColumnPopulated
+
+item_id is changed to decimal (0,2) to function in sql server data table items(item_id-decimal(10,2))
